@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
@@ -82,7 +85,7 @@ class _GameScreenState extends State<GameScreen> {
         print('not match');
       }
 
-      Timer(Duration(milliseconds: 500), () {
+      Timer(Duration(milliseconds: 200), () {
         setState(() {
           print('active');
           clearArray();
@@ -94,10 +97,6 @@ class _GameScreenState extends State<GameScreen> {
     if (activeCards.length == 2) {
       checkMatch();
       moves++;
-    }
-
-    if (allCards.every((card) => card.done)) {
-      print(moves);
     }
 
     return Scaffold(
@@ -130,7 +129,23 @@ class _GameScreenState extends State<GameScreen> {
                 background: allCards[index].background,
               );
             },
-          ))
+          )),
+          Visibility(
+            visible: (allCards.every((card) => card.done)),
+            child: Stack(children: [
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                child: Container(
+                  color: Colors.black.withOpacity(0.5),
+                ),
+              ),
+              Container(
+                width: 500,
+                height: 500,
+                color: Colors.white,
+              )
+            ]),
+          ),
         ],
       ),
     );
