@@ -19,9 +19,6 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
-  late final Stopwatch _stopwatch;
-  late final Duration _timerInterval;
-  late final Timer _timer;
   bool isStarted = false;
   bool isPlaying = false;
 
@@ -68,36 +65,59 @@ class _GameScreenState extends State<GameScreen> {
         allCards[index].active = !allCards[index].active;
       }
       if (!isStarted) {
-        _stopwatch.start();
         setState(() {
+          startTimer();
           isStarted = true;
         });
       }
     });
   }
 
+  late Timer timer;
+  late int seconds = 0;
+
+  late int _remainingMinute;
+  late int _remainingSeconds;
+
+  void resetTimer() {
+    setState(() {
+      seconds = 0;
+      _remainingMinute = 0;
+      _remainingSeconds = 0;
+      moves = 0;
+    });
+  }
+
+  void startTimer() {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        seconds++;
+
+        updateTimeString();
+      });
+    });
+  }
+
+  void stopTimer() {
+    timer.cancel();
+  }
+
+  void updateTimeString() {
+    _remainingMinute = seconds ~/ 60;
+    _remainingSeconds = seconds - 60 * _remainingMinute;
+  }
+
   @override
   void initState() {
     super.initState();
     allCards.shuffle();
-    _stopwatch = Stopwatch();
-    _timerInterval = const Duration(milliseconds: 100);
-    _timer = Timer.periodic(_timerInterval, (_) {
-      setState(() {});
-    });
+    _remainingMinute = 0;
+    _remainingSeconds = 0;
   }
 
   @override
   void dispose() {
-    _timer.cancel();
     super.dispose();
-  }
-
-  String get timerText {
-    final duration = _stopwatch.elapsed;
-    final seconds = duration.inSeconds % 60;
-    final minutes = duration.inMinutes % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
   int moves = 0;
@@ -151,14 +171,14 @@ class _GameScreenState extends State<GameScreen> {
     }
 
     if (allCards.every((card) => card.done)) {
-      _stopwatch.stop();
+      stopTimer();
     }
 
     return Scaffold(
       appBar: AppBar(
         title: Center(
           child: Text(
-            timerText,
+            '${_remainingMinute.toString().padLeft(2, '0')}:${_remainingSeconds.toString().padLeft(2, '0')}',
             style: TextStyle(fontFamily: 'Helvetica', fontSize: 60),
           ),
         ),
@@ -233,12 +253,16 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                   ElevatedButton(
                       onPressed: () {
-                        for (var card in allCards) {
-                          card.done = false;
-                          card.background = card.background.withOpacity(1);
-                        }
-                        moves = 0;
-                        initState();
+                        setState(() {
+                          for (var card in allCards) {
+                            card.done = false;
+                            card.background = card.background.withOpacity(1);
+                          }
+                          resetTimer();
+                          isStarted = false;
+                          allCards.shuffle();
+                          print('play again');
+                        });
                       },
                       child: Text('Play Again!'))
                 ],

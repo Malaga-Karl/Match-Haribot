@@ -31,7 +31,7 @@ class _MyAppState extends State<MyApp> {
       setState(() {
         isPLaying = true;
       });
-    }
+    } 
   }
 
   @override
