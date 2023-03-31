@@ -16,7 +16,7 @@ class _TitleScreenState extends State<TitleScreen> {
     // await audioPlayer.setSource(AssetSource('assets/music/bg.mp3'));
 
     await bird.setPlaybackRate(1.5);
-    await bird.play(AssetSource('music/chirp.mp3'), volume: 0.7);
+    await bird.play(AssetSource('music/chirp.mp3'), volume: 0.3);
   }
 
   @override
